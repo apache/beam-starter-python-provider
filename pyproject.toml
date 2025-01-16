@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "beam-starter-python-provider"
+version = "0.1.0"
+description = "Example Beam YAML Python providers"
+authors = ["Your Name <you@example.com>"]
+license = "Apache License 2.0 OR MIT license"
+readme = "README.md"
+packages = [
+    { include = "my_provider.py" },
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+apache-beam = {extras = ["yaml"], version = "^2.61.0"}
+roman = "^5.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+yapf = "^0.43.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.yapf]
+indent_width = 2
+continuation_indent_width = 4
+column_limit = 80
+allow_split_before_dict_value = false
+blank_line_before_module_docstring = true
+coalesce_brackets = true
+each_dict_entry_on_separate_line = true
+split_all_top_level_comma_separated_values = true
+split_arguments_when_comma_terminated = true
+split_before_expression_after_opening_paren = true
+split_before_first_argument = true
+split_before_logical_operator = false

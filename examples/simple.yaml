@@ -1,0 +1,66 @@
+#
+# Run locally as
+#
+#   python -m apache_beam.yaml.main --yaml_pipeline_file=./simple.yaml
+#
+# Note that the first run may take a minute to create a virtual environment
+# into which to install this dependency, but this environment will be cached.
+#
+# This example can also be run on Dataflow via
+#
+#   gcloud dataflow yaml run my_job \
+#       --yaml-pipeline-file=./simple.yaml \
+#       --region=us-central1
+#
+# (after placing my_provider-0.1.0.tar.gz in a globally accessible
+# location such as gcs and updating the path below).
+#
+
+pipeline:
+  type: chain
+  transforms:
+
+    # Create some input.
+    - type: Create
+      config:
+        elements:
+          - value: 1
+          - value: 99
+          - value: 2024
+          
+    # Use the transform as defined below.
+    - type: ToRoman
+    
+    # Log converted elements.
+    - type: LogForTesting
+    
+    # Map them back.
+    - type: FromRoman
+    
+    # Ensure that we got the same elements back.
+    - type: AssertEqual
+      config:
+        elements:
+          - value: 1
+          - value: 99
+          - value: 2024
+
+providers:
+  # Here we enumerate providers for the externally defined transforms
+  # used above.
+  # The set of providers can either be imported (see the other examples)
+  # and/or listed inline as here.
+  - type: python
+    config:
+      # Here we list packages that need to be installed to find the transforms.
+      # These can be local or remote files, urls, or pypi package identifiers
+      # (such as "scipy>=1.1").
+      packages:
+        - "../dist/beam_starter_python_provider-0.1.0.tar.gz"
+
+    # This is a mapping of transform types (used above) to the fully qualified
+    # name of PTransform classes (or PTransform-returning callables) that 
+    # will be imported and invoked to construct the pipeline.
+    transforms:
+      ToRoman: "my_provider.ToRomanNumerals"
+      FromRoman: "my_provider.FromRomanNumerals"

@@ -1,0 +1,73 @@
+pipeline:
+  transforms:
+  
+    - type: Create
+      config:
+        elements:
+          - {label: '11a', conductor: 11, rank: 0}
+          - {label: '37a', conductor: 37, rank: 1}
+          - {label: '389a', conductor: 389, rank: 2}
+          - {label: '5077a', conductor: 5077, rank: 3}
+
+    # This pipeline is actually a forrest of several "chains" each of which
+    # illustrate a different configuration of the transform.
+    - type: chain
+      input: Create
+      transforms:
+        - type: Stringify
+          config:
+            item_sep: ', '
+            kv_sep: ' = '
+            prefix: '('
+            suffix: ')'
+
+        - type: LogForTesting
+
+        - type: AssertEqual
+          config:
+            elements:
+              - stringified: '(label = 11a, conductor = 11, rank = 0)'
+              - stringified: '(label = 37a, conductor = 37, rank = 1)'
+              - stringified: '(label = 389a, conductor = 389, rank = 2)'
+              - stringified: '(label = 5077a, conductor = 5077, rank = 3)'
+
+
+    # Test running with some defaults.
+    - type: chain
+      input: Create
+      transforms:
+        - type: Stringify
+          config:
+            prefix: '{'
+            suffix: '}'
+
+        - type: LogForTesting
+
+        - type: AssertEqual
+          config:
+            elements:
+              - stringified: '{label: 11a, conductor: 11, rank: 0}'
+              - stringified: '{label: 37a, conductor: 37, rank: 1}'
+              - stringified: '{label: 389a, conductor: 389, rank: 2}'
+              - stringified: '{label: 5077a, conductor: 5077, rank: 3}'
+
+
+    # And without any config at all (as all parameters are defaults)
+    - type: chain
+      input: Create
+      transforms:
+        - type: Stringify
+
+        - type: LogForTesting
+
+        - type: AssertEqual
+          config:
+            elements:
+              - stringified: 'label: 11a, conductor: 11, rank: 0'
+              - stringified: 'label: 37a, conductor: 37, rank: 1'
+              - stringified: 'label: 389a, conductor: 389, rank: 2'
+              - stringified: 'label: 5077a, conductor: 5077, rank: 3'
+
+
+providers:
+  - include: "./provider_listing.yaml"

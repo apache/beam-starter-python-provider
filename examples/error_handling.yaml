@@ -1,0 +1,43 @@
+
+pipeline:
+  type: chain
+  transforms:
+
+    # Create some input.
+    - type: Create
+      config:
+        elements:
+          - roman: I
+          - roman: IV
+          - roman: abc
+
+    # Map them to decimals with error handling.
+    - type: FromRoman
+      config:
+        error_handling:
+          output: my_errors
+    
+    # Ensure that we got the same elements back.
+    - type: AssertEqual
+      config:
+        elements:
+          - value: 1
+          - value: 4
+          
+  extra_transforms:
+    - type: StripErrorMetadata
+      input: FromRoman.my_errors
+      
+    - type: LogForTesting
+      input: FromRoman.my_errors
+      config:
+        prefix: "Expected error:"
+  
+    - type: AssertEqual
+      input: StripErrorMetadata
+      config:
+        elements:
+          - roman: 'abc'
+
+providers:
+  - include: "./provider_listing.yaml"

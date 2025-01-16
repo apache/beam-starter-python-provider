@@ -1,0 +1,60 @@
+
+pipeline:
+  type: composite
+  transforms:
+
+    # Create some input.
+    - type: Create
+      name: Weather
+      config:
+        elements:
+          - {date: '2024-12-01', city: 'Seattle', temperature: 51}
+          - {date: '2024-12-02', city: 'Seattle', temperature: 51}
+          - {date: '2024-12-03', city: 'Seattle', temperature: 45}
+          - {date: '2024-12-03', city: 'Kirkland', temperature: 52}
+          - {date: '2024-12-01', city: 'New York City', temperature: 41}
+          - {date: '2024-12-02', city: 'New York City', temperature: 43}
+          
+    - type: Create
+      name: CityToState
+      config:
+        elements:
+          - {city: 'Seattle', state: 'WA'}
+          - {city: 'Kirkland', state: 'WA'}
+          - {city: 'New York City', state: 'NY'}
+
+    - type: MultiInputMultiOutput
+      input:
+        # Specify multiple inputs as a mapping that will get passed as a dict
+        # to the transform's expand function.
+        city_measurements: Weather
+        city_to_state: CityToState
+    
+    # Multiple outputs are returned from the expand function as a dictionary
+    # mapping string keys to PCollections. Those string keys are referenced
+    # here.
+    - type: LogForTesting
+      input: MultiInputMultiOutput.avg_per_city
+
+    - type: LogForTesting
+      input: MultiInputMultiOutput.max_per_state
+        
+    # Ensure that the pipeline ran correctly.
+    - type: AssertEqual
+      input: MultiInputMultiOutput.avg_per_city
+      config:
+        elements:
+          - {city: 'Seattle', temperature: 49}
+          - {city: 'Kirkland', temperature: 52}
+          - {city: 'New York City', temperature: 42}
+        
+    # Ensure that the pipeline ran correctly.
+    - type: AssertEqual
+      input: MultiInputMultiOutput.max_per_state
+      config:
+        elements:
+          - {state: 'WA', temperature: 52}
+          - {state: 'NY', temperature: 43}
+
+providers:
+  - include: "./provider_listing.yaml"
