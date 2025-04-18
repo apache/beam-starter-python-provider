@@ -12,7 +12,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-apache-beam = {extras = ["yaml"], version = "^2.61.0"}
+apache-beam = {extras = ["gcp", "yaml"], version = "^2.61.0"}
 roman = "^5.0"
 
 [tool.poetry.group.dev.dependencies]
