@@ -33,7 +33,7 @@ poetry build
 
 # Activate the virtual environment managed by Poetry
 # Alternatively, you can prefix commands with `poetry run`
-poetry shell
+eval $(poetry env activate)
 ```
 
 ## Overview
@@ -95,8 +95,7 @@ The script at [examples/run_all.sh](./examples/run_all.sh) shows how they can be
 Make sure you have activated your virtual environment.
 
 ```shell
-cd examples
-python -m apache_beam.yaml.main --yaml_pipeline_file=./simple.yaml
+cd examples./simple.yaml
 ```
 
 **Running with Dataflow:**

@@ -11,3 +11,4 @@
     FromRoman: "my_provider.FromRomanNumerals"
     Stringify: "my_provider.StringifyRow"
     MultiInputMultiOutput: "my_provider.MultiInputMultiOutput"
+    RunHuggingFaceInference: "my_provider.RunHuggingFaceInference"
