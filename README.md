@@ -96,7 +96,7 @@ Make sure you have activated your virtual environment.
 
 ```shell
 cd examples
-./simple.yaml
+python -m apache_beam.yaml.main --yaml_pipeline_file=./simple.yaml
 ```
 
 **Running with Dataflow:**
