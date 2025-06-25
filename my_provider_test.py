@@ -104,3 +104,17 @@ class TestTransforms(unittest.TestCase):
               beam.Row(state='WA', temperature=52),
               beam.Row(state='NY', temperature=43),
           ]))
+
+  def test_run_hugging_face_inference(self):
+    # Just verify inference can run correctly since it is not deterministic
+    with beam.Pipeline() as p:
+      pcoll = p | beam.Create([
+          beam.Row(example="translate English to Spanish: How are you doing?"),
+          beam.Row(example="translate English to Spanish: This is the Apache Beam project."),
+      ])
+      result = pcoll | my_provider.RunHuggingFaceInference(
+        task='translation_XX_to_YY',
+        model='google/flan-t5-small',
+        load_pipeline_args='{"framework": "pt"}',
+        inference_args='{"max_length": 200}'
+      )
