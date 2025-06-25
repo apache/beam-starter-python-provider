@@ -95,7 +95,8 @@ The script at [examples/run_all.sh](./examples/run_all.sh) shows how they can be
 Make sure you have activated your virtual environment.
 
 ```shell
-cd examples./simple.yaml
+cd examples
+./simple.yaml
 ```
 
 **Running with Dataflow:**
