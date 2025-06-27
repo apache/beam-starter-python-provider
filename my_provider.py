@@ -1,8 +1,11 @@
 import contextlib
+import json
 from typing import Optional
 
 import apache_beam as beam
 import apache_beam.transforms.error_handling
+from apache_beam.ml.inference.base import RunInference
+from apache_beam.ml.inference.huggingface_inference import HuggingFacePipelineModelHandler
 try:
   from apache_beam.yaml.yaml_errors import map_errors_to_standard_format
 except ImportError:
@@ -140,3 +143,45 @@ class MultiInputMultiOutput(beam.PTransform):
                 state=result.state, temperature=result.temperature)))
     # As will output pcolls.
     return dict(avg_per_city=avg_per_city, max_per_state=max_per_state)
+
+
+class RunHuggingFaceInference(beam.PTransform):
+  # An example using Beam's RunInference transform with Hugging Face.
+  # This allows running yaml pipelines like:
+  # https://github.com/apache/beam/blob/master/examples/notebooks/beam-ml/run_inference_huggingface.ipynb
+  def __init__(
+      self,
+      task: str,
+      model: str,
+      load_pipeline_args: Optional[str] = None,
+      inference_args: Optional[str] = None):
+    """
+    Returns a customizable string representation of the each row.
+    
+    Args:
+      task: task supported by HuggingFace Pipelines. Accepts any string task supported by HuggingFace. Full list here - https://github.com/apache/beam/blob/6d0e00ea617f2c5eeb354e2b3a304445afeec669/sdks/python/apache_beam/ml/inference/huggingface_inference.py#L75
+      model: path to the pretrained model-id on Hugging Face Models Hub to use custom model for the chosen task.
+      load_pipeline_args: Json encoded keyword arguments to provide load options while loading pipelines from Hugging Face. Defaults to None.
+      inference_args: Json encoded non-batchable arguments required as inputs to the model's inference function. Defaults to None.
+    """
+    self.task = task
+    self.model = model
+    self.load_pipeline_args = {}
+    if load_pipeline_args is not None:
+      self.load_pipeline_args = json.loads(load_pipeline_args)
+    self.inference_args = {}
+    if inference_args is not None:
+      self.inference_args = json.loads(inference_args)
+
+  def expand(self, pcoll):
+    model_handler = HuggingFacePipelineModelHandler(
+        task=self.task,
+        model = self.model,
+        load_pipeline_args=self.load_pipeline_args,
+        inference_args=self.inference_args
+    )
+    return (pcoll
+    | beam.Map(lambda row: row.example)
+    | RunInference(model_handler)
+    | beam.Map(lambda result: beam.Row(example=result.example, inference=str(result.inference)))
+    )

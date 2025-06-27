@@ -33,7 +33,7 @@ poetry build
 
 # Activate the virtual environment managed by Poetry
 # Alternatively, you can prefix commands with `poetry run`
-poetry shell
+eval $(poetry env activate)
 ```
 
 ## Overview

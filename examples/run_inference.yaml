@@ -1,0 +1,27 @@
+
+pipeline:
+  type: composite
+  transforms:
+
+    # Create some input.
+    - type: Create
+      name: Prompts
+      config:
+        elements:
+          - {example: "translate English to Spanish: How are you doing?"}
+          - {example: "translate English to Spanish: This is the Apache Beam project."}
+
+    - type: chain
+      input: Prompts
+      transforms:
+        - type: RunHuggingFaceInference
+          config:
+            task: 'translation_XX_to_YY'
+            model: 'google/flan-t5-small'
+            load_pipeline_args: '{"framework": "pt"}'
+            inference_args: '{"max_length": 200}'
+
+        - type: LogForTesting
+
+providers:
+  - include: "./provider_listing.yaml"
